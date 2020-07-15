@@ -23,10 +23,18 @@ UefiUnload (
     IN EFI_HANDLE ImageHandle
     )
 {
-    //
-    // Do not allow unload
-    //
-    return EFI_ACCESS_DENIED;
+  gBS->UninstallMultipleProtocolInterfaces(
+    ImageHandle,
+    &gEfiDriverBindingProtocolGuid, &gDriverBindingProtocol,
+    &gEfiComponentNameProtocolGuid, &gComponentNameProtocol,
+    &gEfiComponentName2ProtocolGuid, &gComponentName2Protocol,
+    NULL
+  );
+
+  //
+  // Changed from access denied in order to unload in boot
+  //
+  return EFI_SUCCESS;
 }
 
 EFI_STATUS
@@ -41,6 +49,7 @@ UefiMain (
     //
     // Install required driver binding components
     //
+
     efiStatus = EfiLibInstallDriverBindingComponentName2(ImageHandle,
                                                          SystemTable,
                                                          &gDriverBindingProtocol,
@@ -49,7 +58,7 @@ UefiMain (
                                                          &gComponentName2Protocol);
 
     WriteToFile();
-    WriteToFile2();
+    //WriteToFile2();
 
     return efiStatus;
 }
